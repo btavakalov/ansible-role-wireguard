@@ -57,6 +57,11 @@ SaveConfig = {{ wireguard_save_config }}
 {%   if host != inventory_hostname and ((wireguard_as_spoke | default(false)) != true or (hostvars[host].wireguard_as_spoke | default(false)) != true) and ((hostvars[host].wireguard_endpoint is defined and hostvars[host].wireguard_endpoint != "") or (wireguard_endpoint is defined and wireguard_endpoint != "")) %}
 
 [Peer]
+{%     if hostvars[host].wireguard_peer_comment is defined %}
+{%       for comment_line in ([hostvars[host].wireguard_peer_comment] if hostvars[host].wireguard_peer_comment is string else hostvars[host].wireguard_peer_comment) %}
+# {{ comment_line }}
+{%       endfor %}
+{%     endif %}
 # Name = {{ host }}
 PublicKey = {{hostvars[host].wireguard__fact_public_key}}
 {%     if hostvars[host].wireguard_allowed_ips is defined %}
@@ -105,6 +110,11 @@ Endpoint = {{host}}:{{wireguard_port}}
 # Peers not managed by Ansible from "wireguard_unmanaged_peers" variable
 {% for peer in wireguard_unmanaged_peers.keys() %}
 [Peer]
+{%     if wireguard_unmanaged_peers[peer].comment is defined %}
+{%       for comment_line in ([wireguard_unmanaged_peers[peer].comment] if wireguard_unmanaged_peers[peer].comment is string else wireguard_unmanaged_peers[peer].comment) %}
+# {{ comment_line }}
+{%       endfor %}
+{%     endif %}
 # Name = {{ peer }}
 PublicKey = {{ wireguard_unmanaged_peers[peer].public_key }}
 {%     if wireguard_unmanaged_peers[peer].preshared_key is defined %}
